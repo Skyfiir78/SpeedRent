@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
 const router = require('express').Router();
-const auth = require('../auth');
+const auth = require('../../auth');
 const validator = require("email-validator");
-const Users = mongoose.model('Users');
+const User = mongoose.model('User');
 
 //POST new user route (optional, everyone has access)
 router.post('/register', auth.optional, (req, res, next) => {
@@ -33,7 +33,7 @@ router.post('/register', auth.optional, (req, res, next) => {
         })
     }
 
-    Users.find({email: user.email}, function( err, emailResult ){
+    User.find({email: user.email}, function( err, emailResult ){
         if (emailResult.length >= 1) {
             return res.status(422).json({
                 errors: {
@@ -41,7 +41,7 @@ router.post('/register', auth.optional, (req, res, next) => {
                 }
             })
         }
-        const finalUser = new Users(user);
+        const finalUser = new User(user);
 
         finalUser.setPassword(user.password);
 
@@ -72,7 +72,11 @@ router.post('/login', auth.optional, (req, res, next) => {
 
     return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
         if(err) {
-            return next(err);
+            return res.status(422).json({
+                errors:{
+                    message: 'email or password invalid'
+                }
+            })
         }
 
         if(passportUser) {
@@ -90,7 +94,7 @@ router.post('/login', auth.optional, (req, res, next) => {
 router.get('/current', auth.required, (req, res, next) => {
     const { payload: { id } } = req;
 
-    return Users.findById(id)
+    return User.findById(id)
     .then((user) => {
         if(!user) {
             return res.sendStatus(400);
