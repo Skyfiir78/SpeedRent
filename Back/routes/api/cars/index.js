@@ -18,7 +18,8 @@ router.post('/add', auth.required, (req, res, next) => {
                 marque: car.marque,
                 model: car.model,
                 immat: car.immat,
-                renter: user._id
+                renter: user._id,
+                available: false
             })
 
             user.cars.push(newCar)
@@ -33,26 +34,37 @@ router.post('/add', auth.required, (req, res, next) => {
     })
 })
 
-///// Peut etre securiser a voir
-router.get('/getUserCars', auth.optional, (req, res, next) => {
+///// Peut etre a securiser a voir
+router.get('/getUserWithCars', auth.optional, (req, res, next) => {
     const { id } = req.query
+
+    if (!id)
+        return res.json({errors: 'id du vehicule manquant'})
+
     User.findById(id).populate('cars').exec((err, user) => {
         if (err) {
-            return res.json(err)
+            return res.json({
+                errors: 'idUser non valide'
+            })
         }else {
-            return res.json(user.cars)
+            return res.json(user)
         }
     })
 })
 
 //////Fonctionelle a securiser
 router.get('/deleteCar', auth.required, (req, res, next) => {
-    const { carId } = req.query
     const { payload: { id } } = req;
+    const { carId } = req.query
+
+    if (!carId)
+        return res.json({errors: 'carId manquant'})
 
     Car.findById(carId, function( err, car ){
+        ///Si le vehicule existe je le supprime
         car.remove(function(err){
             if (!err) {
+                //// Je recupere user en suprimant dans le tableau cars l'id du vehicule
                 User.findByIdAndUpdate(id, { $pull: {cars: carId } }, {safe: true, upsert: true}, function( err, user ){
                     if (err) {
                         return res.json(err)
