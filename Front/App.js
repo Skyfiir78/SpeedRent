@@ -8,6 +8,6 @@ export default createAppContainer(createSwitchNavigator({
     App: AppSwitch
 },
 {
-    initialRouteName: 'App'
+    initialRouteName: 'Auth'
 }
 ))
