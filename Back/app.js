@@ -20,7 +20,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //logic app
-require('./models/Users');
+require('./models/Car');
+require('./models/User');
 require('./config/passport');
 app.use(require('./routes'));
 
