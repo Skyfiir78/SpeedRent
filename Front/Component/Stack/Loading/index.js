@@ -10,6 +10,18 @@ import {
     AsyncStorage,
 } from 'react-native';
 
+import {
+  BallIndicator,
+  BarIndicator,
+  DotIndicator,
+  MaterialIndicator,
+  PacmanIndicator,
+  PulseIndicator,
+  SkypeIndicator,
+  UIActivityIndicator,
+  WaveIndicator,
+} from 'react-native-indicators';
+
 class Loading extends Component {
 
     async componentDidMount(){
@@ -20,7 +32,7 @@ class Loading extends Component {
         console.log(this.props);
         return(
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                <Text>Loading...</Text>
+                <BarIndicator size={80} color='black'/>
             </View>
         )
     }
