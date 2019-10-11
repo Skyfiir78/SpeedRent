@@ -10,17 +10,7 @@ import {
     AsyncStorage,
 } from 'react-native';
 
-import {
-  BallIndicator,
-  BarIndicator,
-  DotIndicator,
-  MaterialIndicator,
-  PacmanIndicator,
-  PulseIndicator,
-  SkypeIndicator,
-  UIActivityIndicator,
-  WaveIndicator,
-} from 'react-native-indicators';
+import { BarIndicator } from 'react-native-indicators';
 
 class Loading extends Component {
 

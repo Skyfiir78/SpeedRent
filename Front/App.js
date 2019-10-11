@@ -27,7 +27,7 @@ const MainNavigation = createAppContainer(createSwitchNavigator({
     Loading: LoadingScreen,
 },
 {
-    initialRouteName: 'Loading'
+    initialRouteName: 'Auth'
 }
 ))
 
