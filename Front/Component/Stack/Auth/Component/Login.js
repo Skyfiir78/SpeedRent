@@ -17,11 +17,13 @@ import {
 } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
+import Auth from '../../../../Service/Auth'
 
 export default class LoginScreen extends Component {
     constructor(props){
         super(props)
         this.state = {
+            loading: false,
             email: '',
             password: '',
             error: {
@@ -33,7 +35,8 @@ export default class LoginScreen extends Component {
                     active: false,
                     message: 'erreur password',
                 }
-            }
+            },
+            connexionMessage: ''
         }
         this.onLogin = this.onLogin.bind(this)
         this.checkError = this.checkError.bind(this)
@@ -46,11 +49,27 @@ export default class LoginScreen extends Component {
     }
 
     async onLogin(){
+        const { email, password } = this.state
+        await this.setState({loading: true, connexionMessage: ''})
         if (await this.checkError() === false) {
             console.log('err');
+            await this.setState({loading: false})
             return 'err'
         }
-        console.log('connect');
+        let connectResult = await Auth.login({
+            user: {
+                email: email,
+                password: password,
+            }
+        })
+        if (connectResult.errors !== undefined) {
+            await this.setState({connexionMessage: connectResult.errors.message})
+        }
+        if (connectResult.user !== undefined) {
+            await AsyncStorage.setItem('speedRent:token', connectResult.user.token)
+            return this.props.navigation.navigate('App')
+        }
+        await this.setState({loading: false})
     }
 
     validateEmail(email) {
@@ -161,18 +180,42 @@ export default class LoginScreen extends Component {
                             </View>
                         )
                     }
-                        <Button
-                            onPress={() => this.onLogin()}
-                            containerStyle={style.buttonContainer}
-                            buttonStyle={style.buttonStyle}
-                            title='LOGIN'
-                            ViewComponent={LinearGradient}
-                            linearGradientProps={{
-                                colors: ['#0F2027', '#203A43', '#2C5364'],
-                                start: { x: 0, y: 0.5 },
-                                end: { x: 1, y: 0.5 },
-                              }}
-                        />
+                    {
+                        this.state.connexionMessage !== '' ? (
+                            <Text style={{color: 'red'}}>{this.state.connexionMessage}</Text>
+                        ) : (
+                            null
+                        )
+                    }
+                    {
+                        this.state.loading === true ? (
+                            <Button
+                                containerStyle={style.buttonContainer}
+                                buttonStyle={style.buttonStyle}
+                                title='LOGIN'
+                                loading
+                                ViewComponent={LinearGradient}
+                                linearGradientProps={{
+                                    colors: ['#0F2027', '#203A43', '#2C5364'],
+                                    start: { x: 0, y: 0.5 },
+                                    end: { x: 1, y: 0.5 },
+                                  }}
+                            />
+                        ):(
+                            <Button
+                                onPress={() => this.onLogin()}
+                                containerStyle={style.buttonContainer}
+                                buttonStyle={style.buttonStyle}
+                                title='LOGIN'
+                                ViewComponent={LinearGradient}
+                                linearGradientProps={{
+                                    colors: ['#0F2027', '#203A43', '#2C5364'],
+                                    start: { x: 0, y: 0.5 },
+                                    end: { x: 1, y: 0.5 },
+                                  }}
+                            />
+                        )
+                    }
                     <Text style={{marginTop: 15}}>Or</Text>
                     <TouchableOpacity onPress={() => this.props.navigation.navigate('register')} style={{ marginTop: 15}}>
                         <Text style={{color: '#445e90', fontSize: 18}}>Sign Up !</Text>
@@ -204,7 +247,10 @@ const style = {
     },
     buttonContainer: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
         shadowOpacity: 0.8,
         shadowRadius: 2,
         elevation: 1,

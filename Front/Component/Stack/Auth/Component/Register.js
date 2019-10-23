@@ -17,11 +17,13 @@ import {
 } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
+import Auth from '../../../../Service/Auth'
 
 export default class RegisterScreen extends Component {
     constructor(props){
         super(props)
         this.state = {
+            loading: false,
             email: '',
             password: '',
             passwordConfirme: '',
@@ -38,7 +40,8 @@ export default class RegisterScreen extends Component {
                     active: false,
                     message: '',
                 }
-            }
+            },
+            connexionMessage: ''
         }
         this.onRegister = this.onRegister.bind(this)
         this.checkError = this.checkError.bind(this)
@@ -51,16 +54,33 @@ export default class RegisterScreen extends Component {
     }
 
     async onRegister(){
+        const { email, password } = this.state
+        await this.setState({loading: true, connexionMessage: ''})
         if (await this.checkError() === false) {
             console.log('err');
+            await this.setState({loading: false})
             return 'err'
         }
-        console.log('connect');
+        let connectResult = await Auth.register({
+            user: {
+                email: email,
+                password: password,
+            }
+        })
+        console.log(connectResult);
+        if (connectResult.errors !== undefined) {
+            await this.setState({connexionMessage: connectResult.errors.message})
+        }
+        if (connectResult.user !== undefined) {
+            await AsyncStorage.setItem('speedRent:token', connectResult.user.token)
+            return this.props.navigation.navigate('App')
+        }
+        await this.setState({loading: false})
     }
 
     validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
     }
 
     async checkError(){
@@ -84,10 +104,12 @@ export default class RegisterScreen extends Component {
         }
         if (passwordConfirme !== password) {
             error.passwordConfirme.active = true
+            error.password.active = true
             error.passwordConfirme.message = 'Les mot de passe ne corresponde pas'
             errorExist = true
         }else {
             error.passwordConfirme.active = false
+            error.password.active = false
             error.passwordConfirme.message = ''
         }
         await this.setState({error: error})
@@ -151,6 +173,7 @@ export default class RegisterScreen extends Component {
                                     placeholderTextColor={'#2c3e50'}
                                     inputContainerStyle={styledError.inputContainer}
                                     inputStyle={style.inputStyle}
+                                    secureTextEntry={true}
                                     placeholder='Password'
                                     leftIcon={{ type: 'font-awesome', name: 'lock', color: '#2c3e50' }}
                                     leftIconContainerStyle={style.iconContainer}
@@ -179,6 +202,7 @@ export default class RegisterScreen extends Component {
                                     placeholderTextColor={'#2c3e50'}
                                     inputContainerStyle={styledError.inputContainer}
                                     inputStyle={style.inputStyle}
+                                    secureTextEntry={true}
                                     placeholder='PasswordConfirme'
                                     leftIcon={{ type: 'font-awesome', name: 'lock', color: '#2c3e50' }}
                                     leftIconContainerStyle={style.iconContainer}
@@ -187,18 +211,42 @@ export default class RegisterScreen extends Component {
                             </View>
                         )
                     }
-                        <Button
-                            onPress={() => this.onRegister()}
-                            containerStyle={style.buttonContainer}
-                            buttonStyle={style.buttonStyle}
-                            title='Register'
-                            ViewComponent={LinearGradient}
-                            linearGradientProps={{
-                                colors: ['#0F2027', '#203A43', '#2C5364'],
-                                start: { x: 0, y: 0.5 },
-                                end: { x: 1, y: 0.5 },
-                              }}
-                        />
+                    {
+                        this.state.connexionMessage !== '' ? (
+                            <Text style={{color: 'red'}}>{this.state.connexionMessage}</Text>
+                        ) : (
+                            null
+                        )
+                    }
+                    {
+                        this.state.loading === true ? (
+                            <Button
+                                containerStyle={style.buttonContainer}
+                                buttonStyle={style.buttonStyle}
+                                title='REGISTER'
+                                loading
+                                ViewComponent={LinearGradient}
+                                linearGradientProps={{
+                                    colors: ['#0F2027', '#203A43', '#2C5364'],
+                                    start: { x: 0, y: 0.5 },
+                                    end: { x: 1, y: 0.5 },
+                                  }}
+                            />
+                        ):(
+                            <Button
+                                onPress={() => this.onRegister()}
+                                containerStyle={style.buttonContainer}
+                                buttonStyle={style.buttonStyle}
+                                title='REGISTER'
+                                ViewComponent={LinearGradient}
+                                linearGradientProps={{
+                                    colors: ['#0F2027', '#203A43', '#2C5364'],
+                                    start: { x: 0, y: 0.5 },
+                                    end: { x: 1, y: 0.5 },
+                                  }}
+                            />
+                        )
+                    }
                     <Text style={{marginTop: 15}}>Or</Text>
                     <TouchableOpacity onPress={() => this.props.navigation.navigate('login')} style={{ marginTop: 15}}>
                         <Text style={{color: '#445e90', fontSize: 18}}>Sign In !</Text>

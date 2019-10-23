@@ -8,7 +8,7 @@ const AppSwitch = createAppContainer(createSwitchNavigator({
     RenterStack: RenterStack
 },
 {
-    initialRouteName: 'RenterStack'
+    initialRouteName: 'ClientStack'
 }
 ))
 

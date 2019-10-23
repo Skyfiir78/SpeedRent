@@ -10,7 +10,7 @@ router.post('/register', auth.optional, (req, res, next) => {
     const { body: { user } } = req;
 
     if(!user.email) {
-        return res.status(422).json({
+        return res.json({
             errors: {
                 email: 'is required',
             },
@@ -18,7 +18,7 @@ router.post('/register', auth.optional, (req, res, next) => {
     }
 
     if(!user.password) {
-        return res.status(422).json({
+        return res.json({
             errors: {
                 password: 'is required',
             },
@@ -26,7 +26,7 @@ router.post('/register', auth.optional, (req, res, next) => {
     }
 
     if (!validator.validate(user.email)) {
-        return res.status(422).json({
+        return res.json({
             errors: {
                 email: 'email no valid'
             }
@@ -35,9 +35,9 @@ router.post('/register', auth.optional, (req, res, next) => {
 
     User.find({email: user.email}, function( err, emailResult ){
         if (emailResult.length >= 1) {
-            return res.status(422).json({
+            return res.json({
                 errors: {
-                    email: 'already used by other user'
+                    message: 'Already used by other user'
                 }
             })
         }
@@ -55,7 +55,7 @@ router.post('/login', auth.optional, (req, res, next) => {
     const { body: { user } } = req;
 
     if(!user.email) {
-        return res.status(422).json({
+        return res.json({
             errors: {
                 email: 'is required',
             },
@@ -63,7 +63,7 @@ router.post('/login', auth.optional, (req, res, next) => {
     }
 
     if(!user.password) {
-        return res.status(422).json({
+        return res.json({
             errors: {
                 password: 'is required',
             },
@@ -72,7 +72,7 @@ router.post('/login', auth.optional, (req, res, next) => {
 
     return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
         if(err) {
-            return res.status(422).json({
+            return res.json({
                 errors:{
                     message: 'email or password invalid'
                 }

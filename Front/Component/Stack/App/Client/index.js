@@ -3,12 +3,19 @@ import { createMaterialBottomTabNavigator } from "react-navigation-material-bott
 import { createStackNavigator } from 'react-navigation-stack';
 
 import HomeClient from './Component/HomeClient'
+import SettingsClient from './Component/SettingsClient'
 
 const ClientStack = createAppContainer(createMaterialBottomTabNavigator({
     homeClient: {
         screen: HomeClient,
         navigationOptions: {
             tabBarLabel: "HomeClient"
+        }
+    },
+    SettingsClient: {
+        screen: SettingsClient,
+        navigationOptions: {
+            tabBarLabel: 'SettingsClient'
         }
     }
 },
