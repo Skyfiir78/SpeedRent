@@ -19,6 +19,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import Auth from '../../../../Service/Auth'
 
+import FadeIn from '../../../Animation/FadeIn'
+
 export default class LoginScreen extends Component {
     constructor(props){
         super(props)
