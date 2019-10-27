@@ -1,7 +1,7 @@
 import Axios from 'axios'
 import { AsyncStorage } from 'react-native';
 
-const url = `http://192.168.0.41:3000/api`
+const url = `http://172.20.10.2:3000/api`
 
 export default class Auth {
 

@@ -17,59 +17,75 @@ import {
 export default class PanelSlideUp extends Component {
     constructor(props){
         super(props)
-        this.state = {
-            topPosition: new Animated.Value(326),
-            radius: new Animated.Value(200),
-            flecheRotation: new Animated.Value(0),
-            open: false,
-        }
         let { height, width } = Dimensions.get('window')
+        this.MinTopPosition = height - (this.props.topPosition / 2) + this.props.initMarginTopSlider
+        this.MaxTopPosition = this.props.height - this.props.topPosition
+        this.state = {
+            topPosition: new Animated.Value(this.MinTopPosition),
+            flecheRotation: new Animated.Value(0),
+        }
+        this.style = {
+           SliderView: {
+               backgroundColor: '#445e79',
+               width: '100%',
+               height: this.props.height,
+               top: this.state.topPosition,
+               borderTopRightRadius: this._getRadiusAngle(),
+               borderTopLeftRadius: this._getRadiusAngle(),
+               shadowColor: '#000',
+               shadowOffset: { width: 0, height: 2 },
+               shadowOpacity: 0.8,
+               shadowRadius: this._getRadiusAngle(),
+           }
+       }
         this.PanResponder = PanResponder.create({
             onStartShouldSetPanResponder: (event, gestureState) => true,
             onPanResponderMove: (event, gestureState) => {
                 let touches = event.nativeEvent.touches;
-                if (touches.length == 1) {
-                    this.state.topPosition.setValue(touches[0].pageY >= 300 ? ( touches[0].pageY <= 615 ? (touches[0].pageY - height + 380) : (326)) : (0))
+                if (touches.length == 1){
+                    this.state.topPosition.setValue(touches[0].pageY >= this.MaxTopPosition ? (touches[0].pageY) : (this.state.topPosition._value))
+                    this.props.rangeSlider(this.state.topPosition.interpolate({
+                        inputRange: [this.MaxTopPosition, this.MinTopPosition],
+                        outputRange: [0, 1],
+                        extrapolate: 'clamp'
+                    }))
                 }
             },
             onPanResponderRelease: (event, gestureState) => {
-                if (this.state.topPosition._value <= 200) {
-                    this._openPanel()
-                }else {
+                if (this.state.topPosition._value >= this.MaxTopPosition * 2) {
                     this._closePanel()
+                }else {
+                    this._openPanel()
                 }
             },
         })
     }
 
     _openPanel = () => {
-        return Animated.timing(this.state.topPosition, {
-          toValue: 0,
-          easing: Easing.linear,
-          duration: 250,
+        return Animated.spring(this.state.topPosition, {
+          toValue: this.MaxTopPosition,
+          friction: 5
         }).start();
     }
 
     _closePanel = () => {
-        return Animated.timing(this.state.topPosition, {
-          toValue: 326,
-          easing: Easing.elastic(2),
-          duration: 500,
+        return Animated.spring(this.state.topPosition, {
+          toValue: this.MinTopPosition,
+          friction: 5
         }).start();
     }
 
     _getRadiusAngle = () => {
         const radiusInterpolatedValue = this.state.topPosition.interpolate({
-            inputRange: [0, 200],
-            outputRange: [100, 200],
-            useNativeDriver: true
+            inputRange: [this.MaxTopPosition, this.MinTopPosition],
+            outputRange: [this.props.radiusOpen, this.props.radiusClose],
         })
         return radiusInterpolatedValue
     }
 
     _getFlecheRotation = () => {
         let flecheRotationInterpolatedValue = this.state.topPosition.interpolate({
-            inputRange: [0, 326],
+            inputRange: [this.MaxTopPosition, this.MinTopPosition],
             outputRange: ['180deg', '0deg'],
         })
         return flecheRotationInterpolatedValue
@@ -77,22 +93,12 @@ export default class PanelSlideUp extends Component {
 
     render(){
         return(
-            <Animated.View {...this.PanResponder.panHandlers} style={[style.view, {top: this.state.topPosition, borderTopRightRadius: this._getRadiusAngle(), borderTopLeftRadius: this._getRadiusAngle()}]}>
-            <TouchableOpacity onPress={() => this._openPanel()}>
-                <Animated.View style={{flex: 0, alignItems: 'center', marginTop: 10, color: '#2c3e50', transform: [{ rotate: this._getFlecheRotation()}]}}>
-                    <Text style={{fontSize: 25, color: '#2c3e50'}}>&#9650;</Text>
-                </Animated.View>
-                {this.props.children}
-            </TouchableOpacity>
+            <Animated.View {...this.PanResponder.panHandlers} style={this.style.SliderView}>
+                    <Animated.View style={{flex: 0, alignItems: 'center', marginTop: 10, color: '#2c3e50', transform: [{ rotate: this._getFlecheRotation()}]}}>
+                        <Text style={{fontSize: 25, color: '#2c3e50'}}>&#9650;</Text>
+                    </Animated.View>
+                    {this.props.children}
             </Animated.View>
         )
-    }
-}
-
-const style = {
-    view: {
-        backgroundColor: '#445e79',
-        width: '100%',
-        height: 380,
     }
 }

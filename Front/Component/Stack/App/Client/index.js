@@ -14,7 +14,7 @@ const HomeStack = createAppContainer(createStackNavigator({
         screen: HomeClient,
         navigationOptions: {
             title: 'HOME',
-            headerTransparent: true
+            header: null
         }
     },
 },
