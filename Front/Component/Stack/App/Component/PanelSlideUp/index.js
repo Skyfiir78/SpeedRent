@@ -26,6 +26,7 @@ export default class PanelSlideUp extends Component {
         }
         this.style = {
            SliderView: {
+                position: 'absolute',
                backgroundColor: '#445e79',
                width: '100%',
                height: this.props.height,

@@ -30,11 +30,8 @@ export default class HomeClient extends Component {
         return(
             <>
                 <Animated.View style={{flex: 1, alignItems: 'center', backgroundColor:'#2c3e50', opacity: this.state.opacity}}>
-                    <View style={{flex: 1, justifyContent: 'flex-start', width: '50%', height: 300}}>
-                        <CarousselCar topPosition={50} />
-                    </View>
+                    <CarousselCar />
                 </Animated.View>
-                <View style={{flex: 1, position: 'absolute',justifyContent: 'flex-end', width: '100%'}}>
                     <PanelSlideUp
                         topPosition={330}
                         height={500}
@@ -43,7 +40,6 @@ export default class HomeClient extends Component {
                         radiusOpen={50}
                         rangeSlider = {(value) => this.setState({opacity: value})}
                     />
-                </View>
             </>
         )
     }
